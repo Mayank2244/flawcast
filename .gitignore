@@ -16,9 +16,9 @@ backend/database/*.db
 
 data/
 models/
-outputs/
 *.parquet
 *.csv
 *.pt
 *.graphml
 *.ckpt
+*.png
