@@ -1,0 +1,31 @@
+metric,value
+rows,33600
+columns,13
+duplicate_rows,0
+timestamp_min,2025-03-10 00:00:00
+timestamp_max,2025-03-16 23:45:00
+unique_segments,50
+mean_speed_kmh,36.78
+median_speed_kmh,35.71
+overall_congestion_rate,0.4997
+mean_congestion_impact,0.0387
+speed_anomaly_threshold_p20,31.75
+speed_anomaly_count,6718
+speed_anomaly_pct,19.99
+event_only_congested_segment_count,0
+avg_speed_non-event,37.48
+avg_speed_during_event,28.13
+congestion_impact_festival,0.2494
+congestion_impact_ipl,0.2148
+congestion_impact_marathon,0.196
+congestion_impact_none,0.0237
+top_congestion_timestamp_269,2025-03-12 19:00
+top_congestion_timestamp_275,2025-03-12 20:30
+top_congestion_timestamp_282,2025-03-12 22:15
+top_congestion_timestamp_280,2025-03-12 21:45
+top_congestion_timestamp_273,2025-03-12 20:00
+top_congested_segment_39,PAL001 (28.5 km/h)
+top_congested_segment_9,CHN001 (28.7 km/h)
+top_congested_segment_14,FRA001 (29.1 km/h)
+top_congested_segment_8,CBD002 (29.1 km/h)
+top_congested_segment_33,MLR001 (29.4 km/h)
