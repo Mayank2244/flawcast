@@ -10,3 +10,15 @@ node_modules/
 .pytest_cache/
 .mypy_cache/
 venv311/
+.venv/
+cache/
+backend/database/*.db
+
+data/
+models/
+outputs/
+*.parquet
+*.csv
+*.pt
+*.graphml
+*.ckpt

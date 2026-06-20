@@ -7,17 +7,22 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 class Settings(BaseSettings):
-    mysql_host: str = "localhost"
-    mysql_port: int = 3306
-    mysql_user: str = "root"
-    mysql_password: str = "flowcast123"
-    mysql_database: str = "flowcast_ai"
+    # Database — SQLite (zero-config)
+    database_path: str = "database/flowcast.db"
+
+    # MapMyIndia (Mappls) API — competition partner
+    mapmyindia_client_id: str = ""
+    mapmyindia_client_secret: str = ""
+
+    # Optional external APIs
     openweather_api_key: str = ""
     gnews_api_key: str = ""
+
+    # App settings
     app_host: str = "0.0.0.0"
     app_port: int = 8000
     debug: bool = True
-    dataset_path: str = "dataset/Astram event data_anonymized - Astram event data_anonymizedb40ac87.csv"
+    dataset_path: str = "data/Astram event data_anonymized - Astram event data_anonymizedb40ac87.csv"
     models_dir: str = "models"
 
     @property
@@ -35,12 +40,8 @@ class Settings(BaseSettings):
         return p if p.is_absolute() else PROJECT_ROOT / p
 
     @property
-    def database_url(self) -> str:
-        return (
-            f"mysql+pymysql://{self.mysql_user}:{self.mysql_password}"
-            f"@{self.mysql_host}:{self.mysql_port}/{self.mysql_database}"
-            f"?charset=utf8mb4"
-        )
+    def has_mapmyindia(self) -> bool:
+        return bool(self.mapmyindia_client_id and self.mapmyindia_client_secret)
 
     class Config:
         env_file = ".env"

@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initMap() {
   map = L.map('map', { zoomControl: true }).setView([12.9716, 77.5946], 11);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '© OpenStreetMap © CARTO',
     maxZoom: 19,
   }).addTo(map);
@@ -34,6 +34,7 @@ function initNav() {
       document.getElementById(`panel-${panel}`).classList.add('active');
       const titles = {
         overview: 'Operational Overview',
+        events: 'Planned Events Calendar',
         alerts: 'Live Alert Management',
         deploy: 'Officer Deployment Planner',
         predict: 'Live Prediction Engine',
@@ -84,15 +85,18 @@ function initFilters() {
 
 async function refreshAll() {
   await Promise.all([
+    loadApiStatus(),
     loadStats(),
     loadHeatmap(),
     loadAlerts(),
+    loadEvents(),
     loadDeployments(),
     loadCorridorChart(),
     loadHourlyChart(),
     loadCausesChart(),
     loadGraphStats(),
     loadCorridorRisk(),
+    loadNews(),
   ]);
 }
 
@@ -165,10 +169,53 @@ async function loadCorridorRisk() {
         <span class="risk-status">${c.status}</span>
       </div>
     `).join('');
-  } catch (e) {}
+  } catch (e) { }
 }
 
 // ─── API Loaders ────────────────────────────────────────────────────────────
+async function loadApiStatus() {
+  try {
+    const wRes = await fetch(`${API}/live/weather`).then(r => r.json());
+    document.getElementById('api-weather').textContent = `${wRes.temp}°C`;
+    document.getElementById('api-news').textContent = 'Active';
+  } catch (e) {
+    document.getElementById('api-weather').textContent = 'Error';
+  }
+}
+
+async function loadEvents() {
+  try {
+    const data = await fetch(`${API}/events?limit=20`).then(r => r.json());
+    const container = document.getElementById('events-table');
+    if (!container) return;
+    if (!data.length) {
+      container.innerHTML = '<div class="empty-state">No planned events.</div>';
+      return;
+    }
+    container.innerHTML = data.map(ev => `
+      <div class="alert-row">
+        <span class="alert-badge GREEN">PLANNED</span>
+        <span>${ev.title}</span>
+        <span>${ev.corridor || '—'}</span>
+        <span>${ev.event_type}</span>
+        <span>Peak CRS: ${ev.peak_crs_score || '—'}</span>
+        <button class="btn btn-primary" style="padding:0.25rem 0.5rem;font-size:0.7rem" onclick="analyzeEvent('${ev.id}')">View Forecast</button>
+      </div>
+    `).join('');
+  } catch (e) { console.warn('Events unavailable:', e.message); }
+}
+
+async function analyzeEvent(id) {
+  document.querySelector('.nav-item[data-panel="predict"]').click();
+  document.getElementById('predict-result').innerHTML = '<div class="empty-state">Running Temporal Fusion Transformer...</div>';
+  try {
+    const data = await fetch(`${API}/events/${id}/analyze`, { method: 'POST' }).then(r => r.json());
+    renderPredictResult(data);
+  } catch (err) {
+    document.getElementById('predict-result').innerHTML = `<div class="empty-state">Error: ${err.message}</div>`;
+  }
+}
+
 async function loadStats() {
   try {
     const data = await fetch(`${API}/dashboard/stats`).then(r => r.json());
@@ -238,12 +285,14 @@ async function loadCorridorChart() {
       type: 'bar',
       data: {
         labels: data.slice(0, 10).map(d => (d.corridor || '').substring(0, 15)),
-        datasets: [{ label: 'Events', data: data.slice(0, 10).map(d => d.count),
-          backgroundColor: 'rgba(59,130,246,0.7)', borderRadius: 4 }],
+        datasets: [{
+          label: 'Events', data: data.slice(0, 10).map(d => d.count),
+          backgroundColor: 'rgba(59,130,246,0.7)', borderRadius: 4
+        }],
       },
       options: chartOpts(false),
     });
-  } catch (e) {}
+  } catch (e) { }
 }
 
 async function loadHourlyChart() {
@@ -255,13 +304,15 @@ async function loadHourlyChart() {
       type: 'line',
       data: {
         labels: data.map(d => `${d.hour}:00`),
-        datasets: [{ label: 'Events', data: data.map(d => d.count),
+        datasets: [{
+          label: 'Events', data: data.map(d => d.count),
           borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)',
-          fill: true, tension: 0.4, pointRadius: 2 }],
+          fill: true, tension: 0.4, pointRadius: 2
+        }],
       },
       options: chartOpts(false),
     });
-  } catch (e) {}
+  } catch (e) { }
 }
 
 async function loadCausesChart() {
@@ -269,7 +320,7 @@ async function loadCausesChart() {
     const data = await fetch(`${API}/analytics/causes`).then(r => r.json());
     const ctx = document.getElementById('causes-chart');
     if (causesChart) causesChart.destroy();
-    const colors = ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#84cc16'];
+    const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
     causesChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
@@ -278,7 +329,7 @@ async function loadCausesChart() {
       },
       options: { ...chartOpts(true), cutout: '60%' },
     });
-  } catch (e) {}
+  } catch (e) { }
 }
 
 async function loadGraphStats() {
@@ -290,7 +341,30 @@ async function loadGraphStats() {
       <div class="stat-box"><div class="val">${data.density}</div><div class="lbl">Density</div></div>
       <div class="stat-box"><div class="val">${data.avg_degree}</div><div class="lbl">Avg Degree</div></div>
     `;
-  } catch (e) {}
+  } catch (e) { }
+}
+
+async function loadNews() {
+  try {
+    const data = await fetch(`${API}/live/news`).then(r => r.json());
+    const container = document.getElementById('news-feed');
+    if (!container) return;
+    if (!data.length) {
+      container.innerHTML = '<div class="empty-state">No live news available.</div>';
+      return;
+    }
+    container.innerHTML = data.map(n => `
+      <div class="alert-item" style="border-left: 3px solid var(--primary)">
+        <span class="alert-badge GREEN" style="background:var(--primary);color:white">NEWS</span>
+        <div>
+          <div class="alert-title">${n.title}</div>
+          <div class="alert-meta">${n.published_at || 'Just now'} · ${n.source || 'Traffic Update'}</div>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    console.warn('News unavailable:', e.message);
+  }
 }
 
 // ─── Renderers ──────────────────────────────────────────────────────────────
@@ -305,7 +379,7 @@ function renderAlertFeed(alerts) {
       <span class="alert-badge ${a.alert_type}">${a.alert_type}</span>
       <div>
         <div class="alert-title">${a.title}</div>
-        <div class="alert-meta">CRS: ${a.crs_score} · ${a.incident_type?.replace(/_/g,' ') || 'incident'} · Sev ${a.severity}/5</div>
+        <div class="alert-meta">CRS: ${a.crs_score} · ${a.incident_type?.replace(/_/g, ' ') || 'incident'} · Sev ${a.severity}/5</div>
       </div>
     </div>
   `).join('');
@@ -322,7 +396,7 @@ function renderAlertsTable(filter) {
     <div class="alert-row">
       <span class="alert-badge ${a.alert_type}">${a.alert_type}</span>
       <span>${a.title}</span>
-      <span>${a.incident_type?.replace(/_/g,' ') || '—'}</span>
+      <span>${a.incident_type?.replace(/_/g, ' ') || '—'}</span>
       <span>CRS ${a.crs_score}</span>
       <span>Sev ${a.severity}/5</span>
       <button class="btn btn-primary" style="padding:0.25rem 0.5rem;font-size:0.7rem"
@@ -346,7 +420,7 @@ function renderPredictResult(data, targetId = 'predict-result') {
       </div>
     </div>
     <div class="result-grid">
-      <div class="result-item"><strong>NLP Classification</strong>${nlp.classified_type?.replace(/_/g,' ') || '—'} (${((nlp.confidence||0)*100).toFixed(0)}%)</div>
+      <div class="result-item"><strong>NLP Classification</strong>${nlp.classified_type?.replace(/_/g, ' ') || '—'} (${((nlp.confidence || 0) * 100).toFixed(0)}%)</div>
       <div class="result-item"><strong>Anomaly Score</strong>${data.modules?.unplanned?.anomaly_score ?? '—'}</div>
       <div class="result-item"><strong>Officers Needed</strong>${brief.officers_needed ?? '—'}</div>
       <div class="result-item"><strong>Economic Cost</strong>${impact.cost_display || '—'}</div>
@@ -367,9 +441,9 @@ function renderPredictResult(data, targetId = 'predict-result') {
       data: {
         labels: forecast.map(f => `+${f.minutes_ahead}m`),
         datasets: [
-          { label: 'CRS P90', data: forecast.map(f => f.crs_p90), borderColor: 'rgba(239,68,68,0.5)', borderDash: [4,4], fill: false, pointRadius: 0 },
+          { label: 'CRS P90', data: forecast.map(f => f.crs_p90), borderColor: 'rgba(239,68,68,0.5)', borderDash: [4, 4], fill: false, pointRadius: 0 },
           { label: 'CRS P50', data: forecast.map(f => f.crs_p50), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3 },
-          { label: 'CRS P10', data: forecast.map(f => f.crs_p10), borderColor: 'rgba(16,185,129,0.5)', borderDash: [4,4], fill: false, pointRadius: 0 },
+          { label: 'CRS P10', data: forecast.map(f => f.crs_p10), borderColor: 'rgba(16,185,129,0.5)', borderDash: [4, 4], fill: false, pointRadius: 0 },
         ],
       },
       options: chartOpts(false),
@@ -381,12 +455,13 @@ function renderPredictResult(data, targetId = 'predict-result') {
 function chartOpts(legend) {
   return {
     responsive: true,
+    animation: { duration: 1500, easing: 'easeOutQuart' },
     plugins: {
-      legend: { display: legend, labels: { color: '#94a3b8', font: { size: 11 } } },
+      legend: { display: legend, labels: { color: '#64748b', font: { size: 11 } } },
     },
     scales: {
-      x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e293b' } },
-      y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e293b' } },
+      x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#e2e8f0' } },
+      y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#e2e8f0' } },
     },
   };
 }

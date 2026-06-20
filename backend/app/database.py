@@ -1,4 +1,5 @@
-"""SQLAlchemy database setup."""
+"""SQLAlchemy database setup — SQLite for zero-config portability."""
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
@@ -6,10 +7,13 @@ from app.config import get_settings
 
 settings = get_settings()
 
+DB_PATH = Path(settings.database_path)
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
 engine = create_engine(
-    settings.database_url,
+    f"sqlite:///{DB_PATH}",
+    connect_args={"check_same_thread": False},
     pool_pre_ping=True,
-    pool_recycle=3600,
     echo=False,
 )
 
@@ -26,3 +30,8 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def init_db():
+    """Create all tables if they don't exist."""
+    Base.metadata.create_all(bind=engine)

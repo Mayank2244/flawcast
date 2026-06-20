@@ -1,0 +1,258 @@
+dump = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowCast AI — BTP Command Center</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="/static/css/dashboard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <h1>FlowCast AI</h1>
+          <span>BTP Command Center</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="#" class="nav-item active" data-panel="overview">📊 Overview</a>
+        <a href="#" class="nav-item" data-panel="alerts">🚨 Live Alerts</a>
+        <a href="#" class="nav-item" data-panel="deploy">👮 Deployments</a>
+        <a href="#" class="nav-item" data-panel="predict">🔮 Predict</a>
+        <a href="#" class="nav-item" data-panel="demo">🏆 Judge Demo</a>
+        <a href="#" class="nav-item" data-panel="analytics">📈 Analytics</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="status-dot"></div>
+        <span>System Online</span>
+        <small>Flipkart Gridlock 2.0</small>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <header class="header">
+        <div>
+          <h2 id="page-title">Operational Overview</h2>
+          <p class="subtitle">We predict the gridlock before it starts — 2 hours early.</p>
+        </div>
+        <div class="header-actions">
+          <span class="live-badge"><span class="pulse"></span> LIVE</span>
+          <button class="btn btn-primary" onclick="refreshAll()">↻ Refresh</button>
+        </div>
+      </header>
+
+      <!-- KPI Cards -->
+      <section class="kpi-grid" id="kpi-grid">
+        <div class="kpi-card red-accent">
+          <div class="kpi-label">Active RED Alerts</div>
+          <div class="kpi-value" id="kpi-red">—</div>
+          <div class="kpi-sub">Requires immediate action</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Prediction Accuracy</div>
+          <div class="kpi-value" id="kpi-accuracy">—</div>
+          <div class="kpi-sub">TFT + Anomaly Engine</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Advance Warning</div>
+          <div class="kpi-value">2 hrs</div>
+          <div class="kpi-sub">Before gridlock forms</div>
+        </div>
+        <div class="kpi-card green-accent">
+          <div class="kpi-label">Monthly Savings</div>
+          <div class="kpi-value" id="kpi-savings">—</div>
+          <div class="kpi-sub">Productivity recovered</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Events</div>
+          <div class="kpi-value" id="kpi-events">—</div>
+          <div class="kpi-sub"><span id="kpi-planned">—</span> planned · <span id="kpi-unplanned">—</span> unplanned</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Alert Response</div>
+          <div class="kpi-value">&lt;3 sec</div>
+          <div class="kpi-sub">Fusion engine latency</div>
+        </div>
+      </section>
+
+      <!-- Overview Panel -->
+      <section id="panel-overview" class="panel active">
+        <div class="grid-2">
+          <div class="card map-card">
+            <div class="card-header">
+              <h3>🗺️ Bengaluru Congestion Heatmap</h3>
+              <div class="legend">
+                <span class="dot red"></span> RED
+                <span class="dot amber"></span> AMBER
+                <span class="dot green"></span> GREEN
+              </div>
+            </div>
+            <div id="map"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>🚨 Priority Alert Feed</h3></div>
+            <div id="alert-feed" class="alert-feed"></div>
+          </div>
+        </div>
+        <div class="grid-2 mt">
+          <div class="card">
+            <div class="card-header"><h3>📊 Events by Corridor</h3></div>
+            <canvas id="corridor-chart" height="200"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>⏰ Hourly Event Distribution</h3></div>
+            <canvas id="hourly-chart" height="200"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alerts Panel -->
+      <section id="panel-alerts" class="panel">
+        <div class="card">
+          <div class="card-header">
+            <h3>Live Alert Management</h3>
+            <div class="filter-group">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="RED">RED</button>
+              <button class="filter-btn" data-filter="AMBER">AMBER</button>
+              <button class="filter-btn" data-filter="GREEN">GREEN</button>
+            </div>
+          </div>
+          <div id="alerts-table" class="alerts-table"></div>
+        </div>
+      </section>
+
+      <!-- Deployments Panel -->
+      <section id="panel-deploy" class="panel">
+        <div id="deployment-cards" class="deployment-grid"></div>
+      </section>
+
+      <!-- Predict Panel -->
+      <section id="panel-predict" class="panel">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h3>🔮 Live Prediction Engine</h3></div>
+            <form id="predict-form" class="predict-form">
+              <div class="form-row">
+                <label>Event Type</label>
+                <select id="p-event-type">
+                  <option value="planned">Planned Event</option>
+                  <option value="unplanned">Unplanned Incident</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>Event Cause</label>
+                <select id="p-cause">
+                  <option value="public_event">Public Event (IPL/Match)</option>
+                  <option value="accident">Accident</option>
+                  <option value="vehicle_breakdown">Vehicle Breakdown</option>
+                  <option value="water_logging">Water Logging</option>
+                  <option value="construction">Construction</option>
+                  <option value="procession">Procession/Festival</option>
+                  <option value="vip_movement">VIP Movement</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>Corridor</label>
+                <select id="p-corridor">
+                  <option value="CBD 2">CBD 2 (Chinnaswamy)</option>
+                  <option value="ORR East 1">ORR East 1</option>
+                  <option value="ORR North 1">ORR North 1</option>
+                  <option value="Mysore Road">Mysore Road</option>
+                  <option value="Hosur Road">Hosur Road</option>
+                  <option value="Bellary Road 1">Bellary Road 1</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>Priority</label>
+                <select id="p-priority">
+                  <option value="High">High</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>Description</label>
+                <textarea id="p-desc" rows="2" placeholder="Traffic incident description (English/Kannada)..."></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary btn-full">Run Fusion Prediction</button>
+            </form>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>📋 Prediction Result</h3></div>
+            <div id="predict-result" class="predict-result">
+              <div class="empty-state">Submit a prediction to see results</div>
+            </div>
+          </div>
+        </div>
+        <div class="card mt">
+          <div class="card-header"><h3>📈 4-Hour Forecast Timeline</h3></div>
+          <canvas id="forecast-chart" height="120"></canvas>
+        </div>
+      </section>
+
+      <!-- Judge Demo Panel -->
+      <section id="panel-demo" class="panel">
+        <div class="card demo-hero">
+          <h3>🏆 Judge Demo — One-Click Scenarios</h3>
+          <p>Pre-built scenarios from real Astram data patterns. Click to run live fusion prediction for your pitch.</p>
+        </div>
+        <div id="demo-scenarios" class="demo-grid"></div>
+        <div class="card mt" id="demo-result-card" style="display:none">
+          <div class="card-header"><h3>📋 Live Demo Result</h3></div>
+          <div id="demo-result"></div>
+        </div>
+      </section>
+
+      <!-- Analytics Panel -->
+      <section id="panel-analytics" class="panel">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h3>Incident Causes Breakdown</h3></div>
+            <canvas id="causes-chart" height="250"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>🛣️ Corridor Risk Index</h3></div>
+            <div id="corridor-risk" class="corridor-risk-grid"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>System Architecture</h3></div>
+            <div class="arch-diagram">
+              <div class="arch-row">
+                <div class="arch-box ingest">Data Ingestion<br><small>Astram + Weather + NLP</small></div>
+              </div>
+              <div class="arch-arrow">↓</div>
+              <div class="arch-row">
+                <div class="arch-box module-a">Module A<br><small>TFT Forecasting</small></div>
+                <div class="arch-box module-b">Module B<br><small>LSTM Anomaly + NLP</small></div>
+              </div>
+              <div class="arch-arrow">↓</div>
+              <div class="arch-row">
+                <div class="arch-box fusion">Fusion Engine + GNN<br><small>CRS Score 0-100</small></div>
+              </div>
+              <div class="arch-arrow">↓</div>
+              <div class="arch-row">
+                <div class="arch-box dashboard">BTP Dashboard<br><small>Deploy + Economic Impact</small></div>
+              </div>
+            </div>
+            <div id="graph-stats" class="graph-stats"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>"""
+
+with open("frontend/index.html", "w") as f:
+    f.write(dump)
+

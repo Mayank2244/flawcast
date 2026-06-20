@@ -9,14 +9,16 @@ class EventOut(BaseModel):
     event_type: str
     latitude: float
     longitude: float
-    event_cause: Optional[str]
-    corridor: Optional[str]
-    priority: Optional[str]
-    status: Optional[str]
-    start_datetime: Optional[datetime]
-    description: Optional[str]
-    junction: Optional[str]
-    zone: Optional[str]
+    event_cause: Optional[str] = None
+    corridor: Optional[str] = None
+    priority: Optional[str] = None
+    status: Optional[str] = None
+    start_datetime: Optional[datetime] = None
+    description: Optional[str] = None
+    junction: Optional[str] = None
+    zone: Optional[str] = None
+    title: Optional[str] = None
+    peak_crs_score: Optional[float] = None
 
     class Config:
         from_attributes = True
@@ -26,14 +28,14 @@ class AlertOut(BaseModel):
     id: int
     alert_type: str
     severity: int
-    incident_type: Optional[str]
+    incident_type: Optional[str] = None
     title: str
     latitude: float
     longitude: float
-    crs_score: Optional[float]
-    eta_clear_min: Optional[int]
+    crs_score: Optional[float] = None
+    eta_clear_min: Optional[int] = None
     status: str
-    created_at: Optional[datetime]
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -44,11 +46,11 @@ class DeploymentBriefOut(BaseModel):
     title: str
     officers_needed: int
     deploy_by: datetime
-    primary_junction: Optional[str]
-    secondary_junction: Optional[str]
-    estimated_reduction_pct: Optional[float]
-    economic_savings_inr: Optional[float]
-    brief_text: Optional[str]
+    primary_junction: Optional[str] = None
+    secondary_junction: Optional[str] = None
+    estimated_reduction_pct: Optional[float] = None
+    economic_savings_inr: Optional[float] = None
+    brief_text: Optional[str] = None
     status: str
 
     class Config:
@@ -71,6 +73,19 @@ class PredictRequest(BaseModel):
 class NLPRequest(BaseModel):
     text: str
     address: str = ""
+
+
+class WhatIfRequest(BaseModel):
+    event_type: str = "planned"
+    event_cause: str = "public_event"
+    corridor: str = "CBD 2"
+    priority: str = "High"
+    requires_closure: bool = False
+    base_hour: int = 18
+    attendance_multiplier: float = 1.0
+    weather: str = "clear"
+    override_hour: Optional[int] = None
+    override_closure: Optional[bool] = None
 
 
 class DashboardStats(BaseModel):

@@ -1,10 +1,9 @@
-# FlowCast AI — Python 3.11 dependencies
+# FlowCast AI — Python 3.10+ dependencies (CPU)
+# Backend (existing FastAPI dashboard)
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 python-dotenv==1.0.1
 sqlalchemy==2.0.36
-pymysql==1.1.1
-cryptography==44.0.0
 pandas==2.2.3
 numpy==1.26.4
 scikit-learn==1.5.2
@@ -17,3 +16,37 @@ pydantic-settings==2.6.1
 httpx==0.28.1
 jinja2==3.1.4
 aiofiles==24.1.0
+fpdf2==2.8.2
+reportlab==4.2.5
+schedule==1.2.2
+
+# ML pipeline
+torch==2.1.0
+torch-geometric==2.4.0
+pytorch-forecasting==1.0.0
+lightning==2.1.0
+transformers==4.36.2
+datasets==2.16.1
+accelerate==0.25.0
+spacy==3.7.2
+matplotlib==3.8.2
+seaborn==0.13.1
+plotly==5.18.0
+pyarrow==14.0.2
+scipy==1.11.4
+
+# Dashboard & maps
+streamlit==1.30.0
+folium==0.15.1
+streamlit-folium==0.18.0
+
+# Graph & geo
+osmnx==1.9.1
+
+# External data (with demo fallbacks)
+gnews==0.3.7
+tweepy==4.14.0
+pyowm==3.3.0
+
+# HF deployment
+huggingface_hub==0.20.2

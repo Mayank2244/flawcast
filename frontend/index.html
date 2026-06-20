@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="/static/css/dashboard.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
+
 <body>
   <div class="app">
     <!-- Sidebar -->
@@ -21,16 +23,34 @@
       </div>
       <nav class="nav">
         <a href="#" class="nav-item active" data-panel="overview">📊 Overview</a>
+        <a href="#" class="nav-item" data-panel="events">📅 Planned Events</a>
         <a href="#" class="nav-item" data-panel="alerts">🚨 Live Alerts</a>
         <a href="#" class="nav-item" data-panel="deploy">👮 Deployments</a>
         <a href="#" class="nav-item" data-panel="predict">🔮 Predict</a>
         <a href="#" class="nav-item" data-panel="demo">🏆 Judge Demo</a>
         <a href="#" class="nav-item" data-panel="analytics">📈 Analytics</a>
       </nav>
-      <div class="sidebar-footer">
-        <div class="status-dot"></div>
-        <span>System Online</span>
-        <small>Flipkart Gridlock 2.0</small>
+      <div class="sidebar-footer"
+        style="flex-direction:column; align-items:flex-start; gap:0.75rem; margin-top: auto; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+        <div style="font-weight:600; color:var(--text);">API Integrations</div>
+
+        <div style="display:flex; align-items:center; gap:0.5rem; width:100%;">
+          <div class="status-dot"></div>
+          <span>OpenWeather</span>
+          <span id="api-weather" style="margin-left:auto; font-weight:700; color:var(--text);">—</span>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.5rem; width:100%;">
+          <div class="status-dot"></div>
+          <span>GNews NLP</span>
+          <span id="api-news" style="margin-left:auto; font-weight:700; color:var(--text);">—</span>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.5rem; width:100%;">
+          <div class="status-dot"></div>
+          <span>MapMyIndia</span>
+          <span id="api-mmi" style="margin-left:auto; font-weight:700; color:var(--text);">Active</span>
+        </div>
       </div>
     </aside>
 
@@ -72,7 +92,8 @@
         <div class="kpi-card">
           <div class="kpi-label">Total Events</div>
           <div class="kpi-value" id="kpi-events">—</div>
-          <div class="kpi-sub"><span id="kpi-planned">—</span> planned · <span id="kpi-unplanned">—</span> unplanned</div>
+          <div class="kpi-sub"><span id="kpi-planned">—</span> planned · <span id="kpi-unplanned">—</span> unplanned
+          </div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Alert Response</div>
@@ -96,18 +117,40 @@
             <div id="map"></div>
           </div>
           <div class="card">
-            <div class="card-header"><h3>🚨 Priority Alert Feed</h3></div>
-            <div id="alert-feed" class="alert-feed"></div>
+            <div class="card-header">
+              <h3>🚨 Priority Alert Feed</h3>
+            </div>
+            <div id="alert-feed" class="alert-feed" style="max-height: 200px; margin-bottom: 1rem;"></div>
+            <div class="card-header">
+              <h3>📰 Live Traffic News</h3>
+            </div>
+            <div id="news-feed" class="alert-feed" style="max-height: 180px;"></div>
           </div>
         </div>
         <div class="grid-2 mt">
           <div class="card">
-            <div class="card-header"><h3>📊 Events by Corridor</h3></div>
+            <div class="card-header">
+              <h3>📊 Events by Corridor</h3>
+            </div>
             <canvas id="corridor-chart" height="200"></canvas>
           </div>
           <div class="card">
-            <div class="card-header"><h3>⏰ Hourly Event Distribution</h3></div>
+            <div class="card-header">
+              <h3>⏰ Hourly Event Distribution</h3>
+            </div>
             <canvas id="hourly-chart" height="200"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Events Panel -->
+      <section id="panel-events" class="panel">
+        <div class="card">
+          <div class="card-header">
+            <h3>📅 Planned Events Calendar</h3>
+          </div>
+          <div id="events-table" class="alerts-table">
+            <div class="empty-state">Loading planned events...</div>
           </div>
         </div>
       </section>
@@ -137,7 +180,9 @@
       <section id="panel-predict" class="panel">
         <div class="grid-2">
           <div class="card">
-            <div class="card-header"><h3>🔮 Live Prediction Engine</h3></div>
+            <div class="card-header">
+              <h3>🔮 Live Prediction Engine</h3>
+            </div>
             <form id="predict-form" class="predict-form">
               <div class="form-row">
                 <label>Event Type</label>
@@ -178,20 +223,25 @@
               </div>
               <div class="form-row">
                 <label>Description</label>
-                <textarea id="p-desc" rows="2" placeholder="Traffic incident description (English/Kannada)..."></textarea>
+                <textarea id="p-desc" rows="2"
+                  placeholder="Traffic incident description (English/Kannada)..."></textarea>
               </div>
               <button type="submit" class="btn btn-primary btn-full">Run Fusion Prediction</button>
             </form>
           </div>
           <div class="card">
-            <div class="card-header"><h3>📋 Prediction Result</h3></div>
+            <div class="card-header">
+              <h3>📋 Prediction Result</h3>
+            </div>
             <div id="predict-result" class="predict-result">
               <div class="empty-state">Submit a prediction to see results</div>
             </div>
           </div>
         </div>
         <div class="card mt">
-          <div class="card-header"><h3>📈 4-Hour Forecast Timeline</h3></div>
+          <div class="card-header">
+            <h3>📈 4-Hour Forecast Timeline</h3>
+          </div>
           <canvas id="forecast-chart" height="120"></canvas>
         </div>
       </section>
@@ -204,7 +254,9 @@
         </div>
         <div id="demo-scenarios" class="demo-grid"></div>
         <div class="card mt" id="demo-result-card" style="display:none">
-          <div class="card-header"><h3>📋 Live Demo Result</h3></div>
+          <div class="card-header">
+            <h3>📋 Live Demo Result</h3>
+          </div>
           <div id="demo-result"></div>
         </div>
       </section>
@@ -213,15 +265,21 @@
       <section id="panel-analytics" class="panel">
         <div class="grid-2">
           <div class="card">
-            <div class="card-header"><h3>Incident Causes Breakdown</h3></div>
+            <div class="card-header">
+              <h3>Incident Causes Breakdown</h3>
+            </div>
             <canvas id="causes-chart" height="250"></canvas>
           </div>
           <div class="card">
-            <div class="card-header"><h3>🛣️ Corridor Risk Index</h3></div>
+            <div class="card-header">
+              <h3>🛣️ Corridor Risk Index</h3>
+            </div>
             <div id="corridor-risk" class="corridor-risk-grid"></div>
           </div>
           <div class="card">
-            <div class="card-header"><h3>System Architecture</h3></div>
+            <div class="card-header">
+              <h3>System Architecture</h3>
+            </div>
             <div class="arch-diagram">
               <div class="arch-row">
                 <div class="arch-box ingest">Data Ingestion<br><small>Astram + Weather + NLP</small></div>
@@ -251,4 +309,5 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="/static/js/dashboard.js"></script>
 </body>
+
 </html>
