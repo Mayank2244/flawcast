@@ -1,3 +1,5 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 # FlowCast AI — Python 3.10+ dependencies (CPU)
 # Backend (existing FastAPI dashboard)
 fastapi==0.115.6
