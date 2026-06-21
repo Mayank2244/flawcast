@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .env
-models/*.joblib
+# models/*.joblib
 .DS_Store
 node_modules/
 *.log
