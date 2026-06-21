@@ -12,12 +12,12 @@ node_modules/
 venv311/
 .venv/
 cache/
-backend/database/*.db
+# backend/database/*.db
 
-data/
-models/
+# data/
+# models/
 *.parquet
-*.csv
+# *.csv
 *.pt
 *.graphml
 *.ckpt

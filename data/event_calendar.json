@@ -1,0 +1,29 @@
+[
+  {
+    "event_id": "EVT_IPL_001",
+    "type": "ipl",
+    "venue": "Chinnaswamy Stadium",
+    "venue_id": "CHINNASWAMY",
+    "datetime": "2025-03-12T19:00:00",
+    "attendance": 38000,
+    "description": "RCB vs CSK \u2014 IPL Match"
+  },
+  {
+    "event_id": "EVT_FEST_001",
+    "type": "festival",
+    "venue": "Palace Grounds",
+    "venue_id": "PALACE_GROUNDS",
+    "datetime": "2025-03-14T10:00:00",
+    "attendance": 65000,
+    "description": "Ugadi Festival Gathering"
+  },
+  {
+    "event_id": "EVT_MAR_001",
+    "type": "marathon",
+    "venue": "Koramangala",
+    "venue_id": "KORAMANGALA_STADIUM",
+    "datetime": "2025-03-15T06:00:00",
+    "attendance": 12000,
+    "description": "Bengaluru City Marathon"
+  }
+]

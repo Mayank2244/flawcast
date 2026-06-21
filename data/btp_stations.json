@@ -1,0 +1,82 @@
+[
+  {
+    "station_id": "STN_CUB",
+    "name": "Cubbon Park",
+    "lat": 12.9788,
+    "lon": 77.5995,
+    "officer_count": 15,
+    "vehicles": 3
+  },
+  {
+    "station_id": "STN_HSR",
+    "name": "HSR Layout",
+    "lat": 12.9219,
+    "lon": 77.6452,
+    "officer_count": 12,
+    "vehicles": 2
+  },
+  {
+    "station_id": "STN_HBL",
+    "name": "Hebbal",
+    "lat": 13.0354,
+    "lon": 77.5947,
+    "officer_count": 14,
+    "vehicles": 3
+  },
+  {
+    "station_id": "STN_JAY",
+    "name": "Jayanagara",
+    "lat": 12.9274,
+    "lon": 77.5807,
+    "officer_count": 10,
+    "vehicles": 2
+  },
+  {
+    "station_id": "STN_HAL",
+    "name": "HAL Old Airport",
+    "lat": 12.9635,
+    "lon": 77.6642,
+    "officer_count": 11,
+    "vehicles": 2
+  },
+  {
+    "station_id": "STN_WHT",
+    "name": "Whitefield",
+    "lat": 12.9698,
+    "lon": 77.75,
+    "officer_count": 13,
+    "vehicles": 3
+  },
+  {
+    "station_id": "STN_MAD",
+    "name": "Madiwala",
+    "lat": 12.9071,
+    "lon": 77.6286,
+    "officer_count": 10,
+    "vehicles": 2
+  },
+  {
+    "station_id": "STN_WIL",
+    "name": "Wilson Garden",
+    "lat": 12.9539,
+    "lon": 77.5852,
+    "officer_count": 11,
+    "vehicles": 2
+  },
+  {
+    "station_id": "STN_KRP",
+    "name": "KR Puram",
+    "lat": 13.0008,
+    "lon": 77.6814,
+    "officer_count": 12,
+    "vehicles": 2
+  },
+  {
+    "station_id": "STN_ELC",
+    "name": "Electronic City",
+    "lat": 12.8456,
+    "lon": 77.6603,
+    "officer_count": 8,
+    "vehicles": 2
+  }
+]
