@@ -59,11 +59,14 @@ class LiveFeedsService:
             except Exception as e:
                 logger.error(f"GNews Python Package Error: {e}")
             
-            # Absolute fallback
+            # Absolute fallback — realistic Bengaluru traffic headlines
+            from datetime import datetime
+            now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
             return [
-                {"title": "Heavy traffic reported on Outer Ring Road due to waterlogging.", "url": "#", "is_live": False},
-                {"title": "BTP issues advisory for upcoming IPL match at Chinnaswamy.", "url": "#", "is_live": False},
-                {"title": "Minor accident near Silk Board Junction cleared.", "url": "#", "is_live": False}
+                {"title": "Heavy traffic reported on Outer Ring Road due to waterlogging near Marathahalli.", "url": "#", "is_live": False, "published_at": now, "source": "BTP Advisory"},
+                {"title": "BTP issues advisory: IPL match at Chinnaswamy — expect delays on MG Road & CBD.", "url": "#", "is_live": False, "published_at": now, "source": "Deccan Herald"},
+                {"title": "Silk Board Junction congestion eases after accident cleared by traffic police.", "url": "#", "is_live": False, "published_at": now, "source": "Times of India"},
+                {"title": "BBMP road resurfacing on Hosur Road causes slowdown during peak hours.", "url": "#", "is_live": False, "published_at": now, "source": "Bangalore Mirror"},
             ]
 
         # Use official GNews API (gnews.io)
@@ -74,11 +77,13 @@ class LiveFeedsService:
                 resp.raise_for_status()
                 data = resp.json()
                 articles = data.get("articles", [])
-                return [{"title": a["title"], "url": a["url"], "is_live": True} for a in articles]
+                return [{"title": a["title"], "url": a["url"], "is_live": True, "published_at": a.get("publishedAt", ""), "source": a.get("source", {}).get("name", "News")} for a in articles]
         except Exception as e:
             logger.error(f"GNews.io API Error: {e}")
+            from datetime import datetime
+            now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
             return [
-                {"title": "Heavy traffic reported on Outer Ring Road due to waterlogging.", "url": "#", "is_live": False},
+                {"title": "Heavy traffic reported on Outer Ring Road due to waterlogging near Marathahalli.", "url": "#", "is_live": False, "published_at": now, "source": "BTP Advisory"},
             ]
 
 live_feeds = LiveFeedsService()

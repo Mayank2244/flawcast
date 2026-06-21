@@ -131,7 +131,7 @@ def analyze_event(event_id: str, db: Session = Depends(get_db)):
 def list_alerts(
     db: Session = Depends(get_db),
     alert_type: Optional[str] = None,
-    status: str = "active",
+    status: Optional[str] = None,
     limit: int = Query(50, le=200),
 ):
     q = db.query(Alert)

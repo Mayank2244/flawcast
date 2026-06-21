@@ -19,13 +19,18 @@ settings = get_settings()
 def auto_import_if_empty():
     """Import CSV data into SQLite if the database is empty."""
     from app.database import SessionLocal
-    from app.models.orm import Event
+    from app.models.orm import Event, Alert
 
     db = SessionLocal()
     try:
         count = db.query(Event).count()
         if count > 0:
-            logger.info(f"Database has {count} events — skipping import.")
+            logger.info(f"Database has {count} events.")
+            # Check if alerts exist, if not generate them
+            alert_count = db.query(Alert).count()
+            if alert_count == 0:
+                logger.info("No alerts found. Generating initial alerts...")
+                _generate_initial_alerts(db, count)
             return
 
         csv_path = settings.resolved_dataset_path
@@ -114,9 +119,9 @@ def _generate_initial_alerts(db, total_events: int):
     service = FlowCastService(settings.resolved_models_dir)
     events = (
         db.query(Event)
-        .filter(Event.priority == "High")
+        .filter((Event.priority == "High") | (Event.event_cause == "construction") | (Event.event_cause == "water_logging"))
         .order_by(Event.start_datetime.desc())
-        .limit(min(200, total_events // 5))
+        .limit(min(300, total_events // 4))
         .all()
     )
 

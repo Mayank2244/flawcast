@@ -35,7 +35,6 @@ class CorridorRiskService:
         alert_scores = dict(
             db.query(Event.corridor, func.avg(Alert.crs_score))
             .join(Alert, Alert.event_id == Event.id)
-            .filter(Alert.status == "active")
             .group_by(Event.corridor)
             .all()
         )
